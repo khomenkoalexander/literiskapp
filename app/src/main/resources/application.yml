@@ -1,0 +1,28 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:literiskapp}
+    username: ${DB_USER:literiskapp}
+    password: ${DB_PASSWORD:literiskapp}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    show-sql: false
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+app:
+  security:
+    bearer-token: ${BEARER_TOKEN:}
+
+logging:
+  file:
+    name: /app/logs/literiskapp.log
+  level:
+    root: INFO
+    com.literiskapp: DEBUG

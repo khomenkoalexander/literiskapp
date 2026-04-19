@@ -1,14 +1,22 @@
 package com.literiskapp.api;
 
-import java.util.Date;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "cashflow", schema = "literiskapp")
 public class Cashflow {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
 
     public String deal;
 
     public String type;
 
-    public Date date;
+    public LocalDate date;
 
     public Double amount;
 

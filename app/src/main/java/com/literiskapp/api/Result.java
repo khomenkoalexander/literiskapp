@@ -1,12 +1,21 @@
 package com.literiskapp.api;
 
-import java.util.Date;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "result", schema = "literiskapp")
 public class Result {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
 
     public String deal;
 
-    public Date interval;
+    @Column(name = "interval_date")
+    public LocalDate interval;
 
     public String side;
 

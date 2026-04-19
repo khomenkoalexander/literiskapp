@@ -1,14 +1,23 @@
 package com.literiskapp.api;
 
-import java.util.Date;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "market", schema = "literiskapp")
 public class Market {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Long id;
 
     public String type;
 
+    @Column(name = "object")
     public String object;
 
-    public Date date;
+    public LocalDate date;
 
     public Double value;
 }

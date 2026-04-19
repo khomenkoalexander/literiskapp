@@ -1,16 +1,23 @@
 package com.literiskapp.api;
 
-import java.util.Date;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
+import java.time.LocalDate;
+
+@Entity
+@Table(name = "deal", schema = "literiskapp")
 public class Deal {
 
+    @Id
     public String id;
 
     public String type;
 
-    public Date dealDate;
+    public LocalDate dealDate;
 
-    public Date maturityDate;
+    public LocalDate maturityDate;
 
     public Double originalPrincipal;
 
@@ -24,13 +31,11 @@ public class Deal {
 
     public String intPayFreq;
 
-    public Date intPayStart;
+    public LocalDate intPayStart;
 
     public String prinPayFreq;
 
-    public Date prinPayStart;
+    public LocalDate prinPayStart;
 
     public String amortizationType;
-
-
 }
