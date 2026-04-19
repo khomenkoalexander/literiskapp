@@ -24,9 +24,9 @@ public class MarketController {
     }
 
     @PostMapping
-    public ResponseEntity<Market> insert(@RequestBody Market market) {
-        market.id = null; // ensure id is generated
-        Market saved = marketRepository.save(market);
+    public ResponseEntity<List<Market>> insert(@RequestBody List<Market> markets) {
+        markets.forEach(m -> m.id = null); // ensure ids are generated
+        List<Market> saved = marketRepository.saveAll(markets);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 

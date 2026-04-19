@@ -1,0 +1,18 @@
+[
+  {
+    "id": "DEAL-001",
+    "type": "LOAN",
+    "dealDate": "2024-01-01",
+    "maturityDate": "2026-01-01",
+    "originalPrincipal": 1000000.00,
+    "currency": "USD",
+    "assetLiability": "ASSET",
+    "nominalRate": 0.05,
+    "bookValue": 1000000.00,
+    "intPayFreq": "MONTHLY",
+    "intPayStart": "2024-02-01",
+    "prinPayFreq": "MONTHLY",
+    "prinPayStart": "2024-02-01",
+    "amortizationType": "LINEAR"
+  }
+]

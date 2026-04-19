@@ -24,8 +24,8 @@ public class DealController {
     }
 
     @PostMapping
-    public ResponseEntity<Deal> insert(@RequestBody Deal deal) {
-        Deal saved = dealRepository.save(deal);
+    public ResponseEntity<List<Deal>> insert(@RequestBody List<Deal> deals) {
+        List<Deal> saved = dealRepository.saveAll(deals);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
