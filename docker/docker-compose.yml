@@ -1,0 +1,62 @@
+networks:
+  literiskapp-network:
+    driver: bridge
+
+volumes:
+  literiskapp-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/vol3/POSTGRES_DATA
+  literiskapp-app-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/vol3/LOGS
+
+services:
+  db:
+    image: postgres:16
+    container_name: literiskapp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: literiskapp
+      POSTGRES_USER: literiskapp
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-literiskapp}
+    ports:
+      - "5434:5432"
+    volumes:
+      - literiskapp-db-data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - literiskapp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U literiskapp -d literiskapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: literiskapp-app
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: literiskapp
+      DB_USER: literiskapp
+      DB_PASSWORD: ${DB_PASSWORD:-literiskapp}
+      BEARER_TOKEN: ${BEARER_TOKEN:-literiskapp}
+    ports:
+      - "8082:8082"
+    volumes:
+      - literiskapp-app-logs:/app/logs
+    networks:
+      - literiskapp-network
+    depends_on:
+      db:
+        condition: service_healthy
