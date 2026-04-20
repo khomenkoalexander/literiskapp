@@ -1,8 +1,6 @@
 package com.literiskapp.processing;
 
-import com.literiskapp.api.Cashflow;
-import com.literiskapp.api.Deal;
-import com.literiskapp.api.ProcessingSettings;
+import com.literiskapp.api.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -18,7 +16,7 @@ import java.util.List;
 @Component
 public class RegularPaymentGenerator implements CashflowGenerator {
 
-    @Override public String supports() { return "REGULAR_PAYMENT"; }
+    @Override public DealType supports() { return DealType.REGULAR_PAYMENT; }
 
     @Override
     public List<Cashflow> generate(Deal deal, MarketDataService md, ProcessingSettings s) {
@@ -35,7 +33,7 @@ public class RegularPaymentGenerator implements CashflowGenerator {
         Period prinStep = parseFreq(deal.prinPayFreq);
         List<LocalDate> prinDates = schedule(prinStart, deal.maturityDate, prinStep);
         int nPrin = Math.max(prinDates.size(), 1);
-        double principalInstallment = "LINEAR".equalsIgnoreCase(deal.amortizationType)
+        double principalInstallment = (deal.amortizationType == AmortizationType.LINEAR)
                 ? principal / nPrin
                 : 0.0;
 
@@ -62,14 +60,14 @@ public class RegularPaymentGenerator implements CashflowGenerator {
                 double interest = outstanding * rate * yf;
                 lastAccrual = d;
                 if (inWindow(d, s)) {
-                    out.add(buildCashflow(deal, "INTEREST", d, interest,
+                    out.add(buildCashflow(deal, CashflowType.INTEREST, d, interest,
                             deal.currency, outstanding, 0.0, outstanding, rate, md, s));
                 }
             }
             if (isPrincipal && principalInstallment > 0) {
                 outstanding = Math.max(0.0, outstanding - principalInstallment);
                 if (inWindow(d, s)) {
-                    out.add(buildCashflow(deal, "PRINCIPAL", d, principalInstallment,
+                    out.add(buildCashflow(deal, CashflowType.PRINCIPAL, d, principalInstallment,
                             deal.currency, outstanding, 0.0, outstanding, rate, md, s));
                 }
             }
@@ -77,7 +75,7 @@ public class RegularPaymentGenerator implements CashflowGenerator {
 
         // Final principal repayment (bullet) if no amortisation configured.
         if (principalInstallment == 0 && inWindow(deal.maturityDate, s)) {
-            out.add(buildCashflow(deal, "MATURITY", deal.maturityDate, principal,
+            out.add(buildCashflow(deal, CashflowType.MATURITY, deal.maturityDate, principal,
                     deal.currency, 0.0, 0.0, 0.0, rate, md, s));
         }
         return out;
@@ -94,7 +92,7 @@ public class RegularPaymentGenerator implements CashflowGenerator {
         return dates;
     }
 
-    private Cashflow buildCashflow(Deal deal, String type, LocalDate date, double amount,
+    private Cashflow buildCashflow(Deal deal, CashflowType type, LocalDate date, double amount,
                                    String ccy, double remaining, double accrued, double bv,
                                    double rate, MarketDataService md, ProcessingSettings s) {
         Cashflow c = new Cashflow();

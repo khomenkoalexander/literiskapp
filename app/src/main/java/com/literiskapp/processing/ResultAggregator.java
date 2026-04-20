@@ -49,7 +49,7 @@ public class ResultAggregator {
         // ----- Flow aggregation: walk cashflows -----
         for (Cashflow cf : cashflows) {
             Deal deal = dealById.get(cf.deal);
-            if (deal == null) continue;
+            if (deal == null || cf.type == null) continue;
             LocalDate intervalStart = IntervalCalculator.startOfInterval(cf.date, tb);
             ResultKey key = new ResultKey(deal.assetLiability, intervalStart, deal.id, deal.currency);
             Result r = acc.computeIfAbsent(key, this::blank);
@@ -59,15 +59,17 @@ public class ResultAggregator {
             double amountRep = nz(cf.amount) * fx;
             double npvRep = nz(cf.npv) * fx;
 
-            switch (cf.type == null ? "" : cf.type.toUpperCase()) {
-                case "INTEREST" -> {
-                    if ("ASSET".equalsIgnoreCase(deal.assetLiability)) r.interestIncome += amountRep;
+            switch (cf.type) {
+                case INTEREST -> {
+                    if (deal.assetLiability == AssetLiability.ASSET) r.interestIncome += amountRep;
                     else r.interestExpense += amountRep;
                 }
-                case "COUPON" -> r.couponIncome += amountRep;
-                case "PRINCIPAL", "MATURITY", "FX_NEAR", "FX_FAR" -> r.principalFlow += amountRep;
-                case "FX_PNL" -> r.fxPnl += amountRep;
-                default -> {}
+                case COUPON   -> r.couponIncome   += amountRep;
+                case PRINCIPAL,
+                     MATURITY,
+                     FX_NEAR,
+                     FX_FAR   -> r.principalFlow  += amountRep;
+                case FX_PNL   -> r.fxPnl          += amountRep;
             }
             r.npv += npvRep;
         }
@@ -136,5 +138,6 @@ public class ResultAggregator {
 
     private static double nz(Double d) { return d == null ? 0.0 : d; }
 
-    private record ResultKey(String assetLiability, LocalDate interval, String deal, String currency) {}
+    private record ResultKey(AssetLiability assetLiability, LocalDate interval,
+                             String deal, String currency) {}
 }

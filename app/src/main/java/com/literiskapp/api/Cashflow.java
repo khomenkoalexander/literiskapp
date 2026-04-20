@@ -14,8 +14,8 @@ public class Cashflow {
 
     public String deal;
 
-    /** INTEREST, PRINCIPAL, COUPON, FX_NEAR, FX_FAR, MATURITY */
-    public String type;
+    @Enumerated(EnumType.STRING)
+    public CashflowType type;
 
     /** Actual cashflow date (not bucketed). */
     public LocalDate date;

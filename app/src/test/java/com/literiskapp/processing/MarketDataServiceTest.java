@@ -1,6 +1,7 @@
 package com.literiskapp.processing;
 
 import com.literiskapp.api.Market;
+import com.literiskapp.api.MarketType;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -13,13 +14,19 @@ class MarketDataServiceTest {
 
     private Market fx(String obj, String date, double v) {
         Market m = new Market();
-        m.type = "FX"; m.object = obj; m.date = LocalDate.parse(date); m.dvalue = v;
+        m.type = MarketType.FX;
+        m.object = obj;
+        m.date = LocalDate.parse(date);
+        m.dvalue = v;
         return m;
     }
 
     private Market curve(String obj, String date, double v) {
         Market m = new Market();
-        m.type = "CURVE"; m.object = obj; m.date = LocalDate.parse(date); m.dvalue = v;
+        m.type = MarketType.CURVE;
+        m.object = obj;
+        m.date = LocalDate.parse(date);
+        m.dvalue = v;
         return m;
     }
 

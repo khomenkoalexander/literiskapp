@@ -12,7 +12,8 @@ public class Market {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    public String type;
+    @Enumerated(EnumType.STRING)
+    public MarketType type;
 
     @Column(name = "object")
     public String object;

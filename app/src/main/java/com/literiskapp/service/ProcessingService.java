@@ -169,13 +169,13 @@ public class ProcessingService {
         List<Market> markets = marketRepo.findAll();
         MarketDataService md = new MarketDataService(markets);
 
-        Map<String, CashflowGenerator> byType = new HashMap<>();
-        for (CashflowGenerator g : generators) byType.put(g.supports().toUpperCase(Locale.ROOT), g);
+        Map<DealType, CashflowGenerator> byType = new HashMap<>();
+        for (CashflowGenerator g : generators) byType.put(g.supports(), g);
 
         List<Cashflow> allCashflows = new ArrayList<>();
         for (Deal d : deals) {
             if (d.type == null) continue;
-            CashflowGenerator gen = byType.get(d.type.toUpperCase(Locale.ROOT));
+            CashflowGenerator gen = byType.get(d.type);
             if (gen == null) {
                 log.warn("No generator for deal type '{}'; skipping deal {}", d.type, d.id);
                 continue;

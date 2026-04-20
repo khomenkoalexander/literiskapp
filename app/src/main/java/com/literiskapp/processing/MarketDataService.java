@@ -1,6 +1,7 @@
 package com.literiskapp.processing;
 
 import com.literiskapp.api.Market;
+import com.literiskapp.api.MarketType;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -18,13 +19,13 @@ import java.util.*;
 public class MarketDataService {
 
     /** type -> object -> (date-sorted) observations. */
-    private final Map<String, Map<String, NavigableMap<LocalDate, Double>>> byTypeObject = new HashMap<>();
+    private final Map<MarketType, Map<String, NavigableMap<LocalDate, Double>>> byTypeObject = new HashMap<>();
 
     public MarketDataService(List<Market> markets) {
         for (Market m : markets) {
             if (m.type == null || m.object == null || m.date == null || m.dvalue == null) continue;
             byTypeObject
-                .computeIfAbsent(m.type.toUpperCase(Locale.ROOT), k -> new HashMap<>())
+                .computeIfAbsent(m.type, k -> new HashMap<>())
                 .computeIfAbsent(m.object, k -> new TreeMap<>())
                 .put(m.date, m.dvalue);
         }
@@ -34,9 +35,9 @@ public class MarketDataService {
     public double fxRate(String from, String to, LocalDate date) {
         if (from == null || to == null) return 1.0;
         if (from.equalsIgnoreCase(to)) return 1.0;
-        Double direct = lookup("FX", from + "/" + to, date);
+        Double direct = lookup(MarketType.FX, from + "/" + to, date);
         if (direct != null) return direct;
-        Double inverse = lookup("FX", to + "/" + from, date);
+        Double inverse = lookup(MarketType.FX, to + "/" + from, date);
         if (inverse != null && inverse != 0.0) return 1.0 / inverse;
         return 1.0; // no data: assume parity rather than crash the run
     }
@@ -44,20 +45,20 @@ public class MarketDataService {
     /** Curve/zero rate for the named curve on the given date. */
     public double curveRate(String curveName, LocalDate date) {
         if (curveName == null) return 0.0;
-        Double v = lookup("CURVE", curveName, date);
+        Double v = lookup(MarketType.CURVE, curveName, date);
         return v == null ? 0.0 : v;
     }
 
     /** Market price for a priced object (e.g. bond price) on the given date. */
     public double price(String priceObject, LocalDate date) {
         if (priceObject == null) return 100.0; // par by default
-        Double v = lookup("PRICE", priceObject, date);
+        Double v = lookup(MarketType.PRICE, priceObject, date);
         return v == null ? 100.0 : v;
     }
 
     /** Generic interest-rate lookup (type = INTEREST_RATE). */
     public double interestRate(String object, LocalDate date) {
-        Double v = lookup("INTEREST_RATE", object, date);
+        Double v = lookup(MarketType.INTEREST_RATE, object, date);
         return v == null ? 0.0 : v;
     }
 
@@ -65,8 +66,8 @@ public class MarketDataService {
      * Core interpolation: exact match returns the value; otherwise linear
      * interpolation between surrounding dates; flat extrapolation beyond bounds.
      */
-    private Double lookup(String type, String object, LocalDate date) {
-        var perObject = byTypeObject.get(type == null ? null : type.toUpperCase(Locale.ROOT));
+    private Double lookup(MarketType type, String object, LocalDate date) {
+        var perObject = byTypeObject.get(type);
         if (perObject == null) return null;
         NavigableMap<LocalDate, Double> points = perObject.get(object);
         if (points == null || points.isEmpty()) return null;

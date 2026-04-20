@@ -1,8 +1,6 @@
 package com.literiskapp.processing;
 
-import com.literiskapp.api.Cashflow;
-import com.literiskapp.api.Deal;
-import com.literiskapp.api.ProcessingSettings;
+import com.literiskapp.api.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -18,7 +16,7 @@ import java.util.List;
 @Component
 public class SecurityGenerator implements CashflowGenerator {
 
-    @Override public String supports() { return "SECURITY"; }
+    @Override public DealType supports() { return DealType.SECURITY; }
 
     @Override
     public List<Cashflow> generate(Deal deal, MarketDataService md, ProcessingSettings s) {
@@ -36,7 +34,7 @@ public class SecurityGenerator implements CashflowGenerator {
             double yf = yearFraction(lastAccrual, cur);
             double coupon = face * cr * yf;
             if (inWindow(cur, s)) {
-                out.add(build(deal, "COUPON", cur, coupon, face, cr, md, s));
+                out.add(build(deal, CashflowType.COUPON, cur, coupon, face, cr, md, s));
             }
             lastAccrual = cur;
             cur = cur.plus(step);
@@ -44,12 +42,12 @@ public class SecurityGenerator implements CashflowGenerator {
 
         // Face value at maturity
         if (inWindow(deal.maturityDate, s)) {
-            out.add(build(deal, "MATURITY", deal.maturityDate, face, 0.0, cr, md, s));
+            out.add(build(deal, CashflowType.MATURITY, deal.maturityDate, face, 0.0, cr, md, s));
         }
         return out;
     }
 
-    private Cashflow build(Deal deal, String type, LocalDate date, double amount,
+    private Cashflow build(Deal deal, CashflowType type, LocalDate date, double amount,
                            double remainingFace, double cr, MarketDataService md, ProcessingSettings s) {
         Cashflow c = new Cashflow();
         c.deal = deal.id;

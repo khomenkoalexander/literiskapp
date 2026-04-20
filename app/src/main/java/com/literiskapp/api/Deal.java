@@ -1,8 +1,6 @@
 package com.literiskapp.api;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -13,7 +11,8 @@ public class Deal {
     @Id
     public String id;
 
-    public String type;
+    @Enumerated(EnumType.STRING)
+    public DealType type;
 
     public LocalDate dealDate;
 
@@ -23,28 +22,42 @@ public class Deal {
 
     public String currency;
 
-    public String assetLiability;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "asset_liability")
+    public AssetLiability assetLiability;
 
     public Double nominalRate;
 
     public Double bookValue;
 
-    public String intPayFreq;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "int_pay_freq")
+    public PaymentFrequency intPayFreq;
 
     public LocalDate intPayStart;
 
-    public String prinPayFreq;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "prin_pay_freq")
+    public PaymentFrequency prinPayFreq;
 
     public LocalDate prinPayStart;
 
-    public String amortizationType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "amortization_type")
+    public AmortizationType amortizationType;
 
-    public String repricingFreq;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "repricing_freq")
+    public PaymentFrequency repricingFreq;
 
     // --- Security (bond) fields ---
     public Double faceValue;
     public Double couponRate;
-    public String couponFreq;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "coupon_freq")
+    public PaymentFrequency couponFreq;
+
     public LocalDate couponStart;
     public String discountCurve;
     public String marketPriceObj;

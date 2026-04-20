@@ -22,8 +22,9 @@ public class Result {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "asset_liability")
-    public String assetLiability;
+    public AssetLiability assetLiability;
 
     @Column(name = "interval_date")
     public LocalDate interval;

@@ -1,8 +1,6 @@
 package com.literiskapp.processing;
 
-import com.literiskapp.api.Cashflow;
-import com.literiskapp.api.Deal;
-import com.literiskapp.api.ProcessingSettings;
+import com.literiskapp.api.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -18,7 +16,7 @@ import java.util.List;
 @Component
 public class CashAccountGenerator implements CashflowGenerator {
 
-    @Override public String supports() { return "CASH_ACCOUNT"; }
+    @Override public DealType supports() { return DealType.CASH_ACCOUNT; }
 
     @Override
     public List<Cashflow> generate(Deal deal, MarketDataService md, ProcessingSettings s) {
@@ -36,7 +34,7 @@ public class CashAccountGenerator implements CashflowGenerator {
             double yf = yearFraction(lastAccrual, cur);
             double interest = balance * rate * yf;
             if (inWindow(cur, s)) {
-                out.add(build(deal, "INTEREST", cur, interest, balance, rate, md, s));
+                out.add(build(deal, CashflowType.INTEREST, cur, interest, balance, rate, md, s));
             }
             lastAccrual = cur;
             cur = cur.plus(step);
@@ -46,18 +44,18 @@ public class CashAccountGenerator implements CashflowGenerator {
         if (lastAccrual != null && !lastAccrual.equals(deal.maturityDate)) {
             double stub = balance * rate * yearFraction(lastAccrual, deal.maturityDate);
             if (stub != 0 && inWindow(deal.maturityDate, s)) {
-                out.add(build(deal, "INTEREST", deal.maturityDate, stub, balance, rate, md, s));
+                out.add(build(deal, CashflowType.INTEREST, deal.maturityDate, stub, balance, rate, md, s));
             }
         }
 
         // Principal repayment at maturity
         if (inWindow(deal.maturityDate, s)) {
-            out.add(build(deal, "MATURITY", deal.maturityDate, balance, 0.0, rate, md, s));
+            out.add(build(deal, CashflowType.MATURITY, deal.maturityDate, balance, 0.0, rate, md, s));
         }
         return out;
     }
 
-    private Cashflow build(Deal deal, String type, LocalDate date, double amount,
+    private Cashflow build(Deal deal, CashflowType type, LocalDate date, double amount,
                            double bvAfter, double rate, MarketDataService md, ProcessingSettings s) {
         Cashflow c = new Cashflow();
         c.deal = deal.id;

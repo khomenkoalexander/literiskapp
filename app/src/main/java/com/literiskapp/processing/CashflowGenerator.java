@@ -2,6 +2,8 @@ package com.literiskapp.processing;
 
 import com.literiskapp.api.Cashflow;
 import com.literiskapp.api.Deal;
+import com.literiskapp.api.DealType;
+import com.literiskapp.api.PaymentFrequency;
 import com.literiskapp.api.ProcessingSettings;
 
 import java.time.LocalDate;
@@ -11,29 +13,20 @@ import java.util.List;
 
 /**
  * Produces the list of cashflows for one deal over the processing window.
- * Each implementation knows one deal {@code type} and is stateless.
+ * Each implementation knows one deal {@link DealType} and is stateless.
  */
 public interface CashflowGenerator {
 
-    /** Deal {@code type} value this generator handles (case-insensitive). */
-    String supports();
+    /** Deal type this generator handles. */
+    DealType supports();
 
     List<Cashflow> generate(Deal deal, MarketDataService md, ProcessingSettings settings);
 
     // ---------- Shared helpers ----------
 
-    /** Parse frequency strings like DAILY/WEEKLY/MONTHLY/QUARTERLY/SEMIANNUAL/ANNUAL. */
-    default Period parseFreq(String freq) {
-        if (freq == null) return Period.ofMonths(1);
-        return switch (freq.trim().toUpperCase()) {
-            case "DAILY" -> Period.ofDays(1);
-            case "WEEKLY" -> Period.ofWeeks(1);
-            case "MONTHLY" -> Period.ofMonths(1);
-            case "QUARTERLY" -> Period.ofMonths(3);
-            case "SEMIANNUAL", "SEMI_ANNUAL" -> Period.ofMonths(6);
-            case "ANNUAL", "YEARLY" -> Period.ofYears(1);
-            default -> Period.ofMonths(1);
-        };
+    /** Null-safe frequency-to-period converter; defaults to MONTHLY when {@code freq} is null. */
+    default Period parseFreq(PaymentFrequency freq) {
+        return freq == null ? Period.ofMonths(1) : freq.toPeriod();
     }
 
     /** ACT/360 year fraction. */
