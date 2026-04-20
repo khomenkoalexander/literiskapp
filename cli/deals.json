@@ -1,7 +1,7 @@
 [
   {
     "id": "DEAL-001",
-    "type": "LOAN",
+    "type": "REGULAR_PAYMENT",
     "dealDate": "2024-01-01",
     "maturityDate": "2026-01-01",
     "originalPrincipal": 1000000.00,
@@ -13,6 +13,35 @@
     "intPayStart": "2024-02-01",
     "prinPayFreq": "MONTHLY",
     "prinPayStart": "2024-02-01",
-    "amortizationType": "LINEAR"
-  }
+    "amortizationType": "LINEAR",
+	"repricingFreq" : "ANNUAL"
+  },
+  {
+    "id": "DEAL-002",
+    "type": "CASH_ACCOUNT",
+    "dealDate": "2024-04-01",
+    "maturityDate": "2026-02-01",
+    "originalPrincipal": 500000.00,
+    "currency": "EUR",
+    "assetLiability": "LIABILITY",
+    "nominalRate": 0.025,
+    "bookValue": 500000.00,
+	"prinPayFreq": "MONTHLY"
+  },
+  {
+  "id" : "DEAL-002",
+  "type" : "FX_SWAP",
+  "dealDate" : "2024-04-01",
+  "maturityDate" : "2025-04-01",
+  "currency" : "USD",
+  "assetLiability" : "ASSET",
+  "fxNearCurrency" : "USD",
+  "fxFarCurrency" : "EUR",
+  "fxNearAmount" : 1000000.0,
+  "fxFarAmount" : 920000.0,
+  "fxNearDate" : "2024-04-01",
+  "fxFarDate" : "2025-04-01",
+  "fxSpotRate" : 0.92,
+  "fxForwardRate" : 0.918
+   }
 ]

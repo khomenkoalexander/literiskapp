@@ -4,5 +4,42 @@
     "object": "USD_3M",
     "date": "2024-01-01",
     "value": 0.0525
-  }
+}, {
+  "type" : "FX",
+  "object" : "EUR/USD",
+  "date" : "2024-01-01",
+  "value" : 1.08
+}, {
+  "type" : "FX",
+  "object" : "USD/EUR",
+  "date" : "2024-01-01",
+  "value" : 0.9259259259259258
+}, {
+  "type" : "FX",
+  "object" : "EUR/USD",
+  "date" : "2024-02-01",
+  "value" : 1.081
+}, {
+  "type" : "FX",
+  "object" : "USD/EUR",
+  "date" : "2024-02-01",
+  "value" : 0.9250693802035153
+}, {
+  "type" : "CURVE",
+  "object" : "USD_DISCOUNT",
+  "date" : "2024-02-01",
+  "tenor" : "",
+  "value" : 0.05
+}, {
+  "type" : "CURVE",
+  "object" : "USD_LIBOR_3M",
+  "date" : "2024-03-01",
+  "tenor" : "",
+  "value" : 0.046
+}, {
+  "type" : "PRICE",
+  "object" : "BOND_006_PRICE",
+  "date" : "2025-04-15",
+  "value" : 98.75
+}
 ]
