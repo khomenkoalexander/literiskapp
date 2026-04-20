@@ -29,7 +29,7 @@
 	"prinPayFreq": "MONTHLY"
   },
   {
-  "id" : "DEAL-002",
+  "id" : "DEAL-003",
   "type" : "FX_SWAP",
   "dealDate" : "2024-04-01",
   "maturityDate" : "2025-04-01",
@@ -43,5 +43,20 @@
   "fxFarDate" : "2025-04-01",
   "fxSpotRate" : 0.92,
   "fxForwardRate" : 0.918
-   }
+   }, {
+  "id" : "DEAL-004",
+  "type" : "SECURITY",
+  "dealDate" : "2024-01-15",
+  "maturityDate" : "2028-01-15",
+  "currency" : "USD",
+  "assetLiability" : "ASSET",
+  "originalPrincipal" : 1000000.0,
+  "faceValue" : 1000000.0,
+  "couponRate" : 0.048,
+  "couponFreq" : "SEMIANNUAL",
+  "couponStart" : "2024-07-15",
+  "bookValue" : 1000000.0,
+  "discountCurve" : "USD_DISCOUNT",
+  "marketPriceObj" : "BOND_006_PRICE"
+}
 ]

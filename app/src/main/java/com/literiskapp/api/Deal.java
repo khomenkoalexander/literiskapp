@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "deal", schema = "literiskapp")
+@Table(name = "deal")
 public class Deal {
 
     @Id
@@ -38,4 +38,24 @@ public class Deal {
     public LocalDate prinPayStart;
 
     public String amortizationType;
+
+    public String repricingFreq;
+
+    // --- Security (bond) fields ---
+    public Double faceValue;
+    public Double couponRate;
+    public String couponFreq;
+    public LocalDate couponStart;
+    public String discountCurve;
+    public String marketPriceObj;
+
+    // --- FX swap fields ---
+    public String fxNearCurrency;
+    public String fxFarCurrency;
+    public Double fxNearAmount;
+    public Double fxFarAmount;
+    public LocalDate fxNearDate;
+    public LocalDate fxFarDate;
+    public Double fxSpotRate;
+    public Double fxForwardRate;
 }

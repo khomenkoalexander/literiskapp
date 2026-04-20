@@ -1,10 +1,10 @@
 package com.literiskapp.api;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class ProcessingSettings {
-    private Date processingStartDate;
-    private Date processingEndDate;
-    private Timeband timeband = Timeband.Daily;
-    private String reportingCurrency = "USD";
+    public LocalDate processingStartDate;
+    public LocalDate processingEndDate;
+    public Timeband timeband = Timeband.Daily;
+    public String reportingCurrency = "USD";
 }

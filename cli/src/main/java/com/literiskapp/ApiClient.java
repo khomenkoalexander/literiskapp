@@ -46,6 +46,21 @@ public class ApiClient {
         send(request);
     }
 
+    /** POST a single JSON object (not wrapped in array). Used for processing settings. */
+    public void postSingle(String path, Path jsonFile) throws Exception {
+        String body = Files.readString(jsonFile);
+        Object parsed = mapper.readValue(body, Object.class);
+        if (parsed instanceof List) {
+            System.err.println("Error: JSON file must contain a single object, not an array.");
+            System.exit(1);
+        }
+        HttpRequest request = baseRequest(path)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+        send(request);
+    }
+
     public void delete(String path) throws Exception {
         HttpRequest request = baseRequest(path).DELETE().build();
         send(request);

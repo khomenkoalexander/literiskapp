@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "cashflow", schema = "literiskapp")
+@Table(name = "cashflow")
 public class Cashflow {
 
     @Id
@@ -14,10 +14,13 @@ public class Cashflow {
 
     public String deal;
 
+    /** INTEREST, PRINCIPAL, COUPON, FX_NEAR, FX_FAR, MATURITY */
     public String type;
 
+    /** Actual cashflow date (not bucketed). */
     public LocalDate date;
 
+    /** Amount in cashflow currency (may differ from deal currency for FX legs). */
     public Double amount;
 
     public String currency;
@@ -32,5 +35,6 @@ public class Cashflow {
 
     public Double discountFactor;
 
+    /** NPV in cashflow currency. */
     public Double npv;
 }

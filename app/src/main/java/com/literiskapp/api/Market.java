@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "market", schema = "literiskapp")
+@Table(name = "market")
 public class Market {
 
     @Id
@@ -19,5 +19,7 @@ public class Market {
 
     public LocalDate date;
 
-    public Double value;
+    public String tenor;
+
+    public Double dvalue;
 }

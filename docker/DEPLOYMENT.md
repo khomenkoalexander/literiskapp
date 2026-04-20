@@ -181,6 +181,79 @@ Returns `204 No Content`.
 
 ---
 
+### Processing
+
+Processing runs asynchronously on a single background worker. Only one job may
+be active (`PENDING` or `RUNNING`) at a time — further submissions return
+`409 Conflict` until the active job completes.
+
+When the job runs it:
+1. Truncates existing cashflows and results.
+2. Loads all deals and all market data.
+3. Generates cashflows per deal (one of `REGULAR_PAYMENT`, `CASH_ACCOUNT`,
+   `FX_SWAP`, `SECURITY`) at actual cashflow dates.
+4. Aggregates per-deal-per-interval `Result` rows keyed by
+   `(asset_liability, interval_date, deal, currency)`, with values converted
+   to the reporting currency via FX market data.
+
+Orphan `PENDING`/`RUNNING` jobs from a previous JVM are marked `FAILED` on
+application startup.
+
+**Submit a job** — body is a single `ProcessingSettings` object (not an array)
+```
+POST /api/process
+Content-Type: application/json
+
+{
+  "processingStartDate": "2024-01-01",
+  "processingEndDate":   "2025-12-31",
+  "timeband":            "Monthly",
+  "reportingCurrency":   "USD"
+}
+```
+`timeband` is one of `Daily`, `Weekly`, `Monthly`, `Quarterly`, `Yearly`.
+Intervals are aligned to the **start** of real calendar periods (ISO-week
+Monday, month-1st, quarter-start month, Jan-1st).
+
+Returns `202 Accepted` with the initial status row:
+```json
+{
+  "id": "a5c8e1de-1234-4567-89ab-0123456789ab",
+  "status": "PENDING",
+  "requestedAt": "2024-05-01T10:15:00",
+  "settingsJson": "{...}"
+}
+```
+Returns `409 Conflict` if another job is already active.
+
+**Poll status**
+```
+GET /api/process/{id}
+```
+Returns the current status row:
+```json
+{
+  "id": "a5c8e1de-...",
+  "status": "FINISHED",
+  "requestedAt": "2024-05-01T10:15:00",
+  "startedAt":   "2024-05-01T10:15:00",
+  "finishedAt":  "2024-05-01T10:15:42",
+  "cashflowsGenerated": 1234,
+  "resultsGenerated":    567,
+  "errorMessage": null
+}
+```
+`status` is one of `PENDING`, `RUNNING`, `FINISHED`, `FAILED`. On failure
+`errorMessage` contains the exception class + message (truncated to 4000
+chars).
+
+**List all jobs (most recent first)**
+```
+GET /api/process
+```
+
+---
+
 ## CLI
 
 The CLI is a self-contained JAR (`cli/target/cli.jar`) requiring a YAML config file.
@@ -220,7 +293,26 @@ java -Dconfig=config.yml -jar cli.jar cashflows truncate
 # Results
 java -Dconfig=config.yml -jar cli.jar results list
 java -Dconfig=config.yml -jar cli.jar results truncate
+
+# Processing
+java -Dconfig=config.yml -jar cli.jar process start file=settings.json
+java -Dconfig=config.yml -jar cli.jar process status id=<uuid>
+java -Dconfig=config.yml -jar cli.jar process list
 ```
+
+`process start` accepts a single-object JSON file (not an array):
+
+`settings.json`:
+```json
+{
+  "processingStartDate": "2024-01-01",
+  "processingEndDate":   "2025-12-31",
+  "timeband":            "Monthly",
+  "reportingCurrency":   "USD"
+}
+```
+The CLI prints the returned status row; poll with `process status id=<uuid>`
+until `status` is `FINISHED` or `FAILED`.
 
 ### Insert file format
 
