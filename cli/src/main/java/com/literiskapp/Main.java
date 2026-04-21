@@ -11,7 +11,7 @@ public class Main {
     private static final String USAGE = """
             Usage: java -Dconfig=<config.yml> -jar cli.jar <entity> <command> [args]
 
-            Entities and commands:
+            API entities (require -Dconfig):
               deals      list                    List all deals
               deals      insert  file=<path>     Insert deals from JSON array file
               deals      truncate                Delete all deals
@@ -25,6 +25,12 @@ public class Main {
               process    start   file=<path>     Start async processing with JSON settings file
               process    status  id=<uuid>       Fetch one job's status
               process    list                    List all processing jobs (newest first)
+
+            File conversion (no -Dconfig needed):
+              convert    jsonToCsv  file=<path>  Convert JSON array to CSV
+              convert    csvToJson  file=<path>  Convert CSV to JSON array (types inferred)
+              convert    jsonToXLS  file=<path>  Convert JSON array to XLSX (types set)
+              convert    XLSToJson  file=<path>  Convert XLSX to JSON array
 
             Config file (YAML):
               baseUrl: http://localhost:8082
@@ -45,6 +51,16 @@ public class Main {
             return;
         }
 
+        String entity  = args[0].toLowerCase();
+        String command = args.length > 1 ? args[1].toLowerCase() : "";
+
+        // ── File conversion commands: no server config needed ──────────────
+        if ("convert".equals(entity)) {
+            handleConvert(command, args);
+            return;
+        }
+
+        // ── All other commands: config + server required ───────────────────
         String configPath = System.getProperty("config");
         if (configPath == null) {
             System.err.println("Error: -Dconfig=<path> is required.");
@@ -56,8 +72,6 @@ public class Main {
                 .readValue(new File(configPath), Config.class);
 
         ApiClient client = new ApiClient(config);
-        String entity  = args[0].toLowerCase();
-        String command = args.length > 1 ? args[1].toLowerCase() : "";
 
         switch (entity) {
             case "deals" -> {
@@ -109,6 +123,20 @@ public class Main {
         }
     }
 
+    // ── Convert dispatcher ─────────────────────────────────────────────────
+
+    private static void handleConvert(String command, String[] args) throws Exception {
+        switch (command) {
+            case "jsontocsv" -> FileConverter.jsonToCsv(requireFile(args));
+            case "csvtojson" -> FileConverter.csvToJson(requireFile(args));
+            case "jsontoxls" -> FileConverter.jsonToXls(requireFile(args));
+            case "xlstojson" -> FileConverter.xlsToJson(requireFile(args));
+            default          -> convertUsage();
+        }
+    }
+
+    // ── Argument helpers ───────────────────────────────────────────────────
+
     private static Path requireFile(String[] args) {
         for (String arg : args) {
             if (arg.startsWith("file=")) return Path.of(arg.substring(5));
@@ -128,6 +156,8 @@ public class Main {
         return null;
     }
 
+    // ── Usage printers ─────────────────────────────────────────────────────
+
     private static void entityUsage(String entity, boolean hasInsert) {
         System.out.println("Commands for '" + entity + "':");
         System.out.println("  list                  List all " + entity);
@@ -143,6 +173,15 @@ public class Main {
         System.out.println("  start   file=<path>   Submit a new processing job (JSON settings file)");
         System.out.println("  status  id=<uuid>     Fetch one job's status");
         System.out.println("  list                  List all jobs");
+        System.exit(1);
+    }
+
+    private static void convertUsage() {
+        System.out.println("Commands for 'convert' (no -Dconfig needed):");
+        System.out.println("  jsonToCsv  file=<path>   Convert JSON array to CSV");
+        System.out.println("  csvToJson  file=<path>   Convert CSV to JSON array (types inferred)");
+        System.out.println("  jsonToXLS  file=<path>   Convert JSON array to XLSX (typed cells)");
+        System.out.println("  XLSToJson  file=<path>   Convert XLSX to JSON array");
         System.exit(1);
     }
 }
