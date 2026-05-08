@@ -1,4 +1,4 @@
-# Demo Spring Boot Cashflows / Financial Metrics generator.
+# Spring Boot Cashflows / Financial Metrics generator.
 
 * Docker deployment (docker compose)
 * PostgreSQL DB
