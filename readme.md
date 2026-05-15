@@ -5,7 +5,27 @@
 * REST API (JSON)
 * Command Line tool
 
-Typical usage:
+**LiteRisk** is a Spring Boot financial simulation engine that models cashflows 
+and risk measures across a portfolio of financial instruments. 
+It supports four deal types — regular amortising loans, cash accounts/deposits, 
+FX swaps, and fixed-coupon bonds (securities) — and generates detailed 
+cashflow schedules based on each instrument's contractual terms, including 
+payment frequencies, amortisation type, coupon schedules, and FX legs. 
+Market data (FX rates, discount curves, bond prices, interest rates) is loaded separately 
+and used for NPV discounting, mark-to-market valuation, and currency conversion.
+
+Once cashflows are generated, the engine aggregates them into OLAP-style result rows 
+keyed by asset/liability classification, reporting interval, deal, and currency. 
+Results are expressed in a configurable reporting currency using interpolated FX rates, 
+and broken down into eight financial measures: book value, nominal balance, principal flow, 
+interest income, interest expense, coupon income, FX P&L, and NPV. 
+Processing runs asynchronously with status polling, and the full stack is packaged 
+as a Dockerised Spring Boot application backed by PostgreSQL. 
+A companion CLI tool provides command-line access to all REST endpoints as well as 
+standalone file conversion utilities (JSON ↔ CSV ↔ XLSX).
+
+## Typical usage:
+
 * Import deals through one or more REST calls, or insert directly into DB
 * Import market data through one or more REST calls, or insert directly into DB
 * Trigger processing and wait for process to finish
@@ -14,23 +34,24 @@ Typical usage:
 
 REST endpoints:
 ```
-GET /api/deals
-POST /api/deals
-DELETE /api/deals
-
-GET /api/markets
-POST /api/markets
-DELETE /api/markets
-
-POST /api/process
-GET /api/process
-GET /api/process/{id}
-
-GET /api/cashflows
-DELETE /api/cashflows
-
-GET /api/results
-DELETE /api/results
+# Deals
+GET    /api/deals          list all deals
+POST   /api/deals          insert deals (JSON array body)
+DELETE /api/deals          truncate all deals
+# Markets
+GET    /api/markets        list all market data
+POST   /api/markets        insert market records (JSON array body)
+DELETE /api/markets        truncate all market data
+# Cashflows
+GET    /api/cashflows      list all cashflows
+DELETE /api/cashflows      truncate all cashflows
+# Results
+GET    /api/results        list all results
+DELETE /api/results        truncate all results
+# Processing
+POST   /api/process        submit a processing job → 202 Accepted / 409 if busy
+GET    /api/process/{id}   get status of one job
+GET    /api/process        list all jobs (newest first)
 ```
 
 
